@@ -1,5 +1,6 @@
 package com.jivesoftware.os.kensaku.ui;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jivesoftware.os.jive.utils.http.client.rest.RequestHelper;
 import com.jivesoftware.os.kensaku.shared.KensakuQuery;
 import com.jivesoftware.os.kensaku.shared.KensakuResult;
@@ -21,6 +22,7 @@ import javax.swing.border.EtchedBorder;
 
 public class JSearch extends JFrame {
 
+    private static final ObjectMapper mapper = new ObjectMapper();
     RequestHelper requestHelper;
     JPanel viewResults;
     JTextField tenant;
@@ -80,8 +82,8 @@ public class JSearch extends JFrame {
         SpringUtils.makeCompactGrid(m, 3, 2, 24, 24, 16, 16);
 
         JScrollPane scrollRoutes = new JScrollPane(viewResults,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollRoutes.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 
         setLayout(new BorderLayout(8, 8));
@@ -93,27 +95,33 @@ public class JSearch extends JFrame {
 
     public void refresh() {
 
-        Map<String, String> fields = new HashMap<>();
-        fields.put("body", query.getText());
-        KensakuQuery kensakuQuery = new KensakuQuery(tenant.getText(), 0, 10, fields);
-        KensakuResults kensakuResults = requestHelper.executeRequest(kensakuQuery,
-                "/kensaku/search", KensakuResults.class, null);
-        System.out.println("Search:" + kensakuResults);
-        if (kensakuResults != null) {
-            viewResults.removeAll();
-            int count = 0;
+        try {
+            Map<String, String> fields = new HashMap<>();
+            fields.put("body", query.getText());
+            byte[] query = mapper.writeValueAsBytes(fields);
 
-            for (KensakuResult r : kensakuResults.results) {
-                viewResults.add(new JLabel(r.toString()));
-                count++;
+            KensakuQuery kensakuQuery = new KensakuQuery(tenant.getText(), 0, 10, query);
+            KensakuResults kensakuResults = requestHelper.executeRequest(kensakuQuery,
+                "/kensaku/search", KensakuResults.class, null);
+            System.out.println("Search:" + kensakuResults);
+            if (kensakuResults != null) {
+                viewResults.removeAll();
+                int count = 0;
+
+                for (KensakuResult r : kensakuResults.results) {
+                    viewResults.add(new JLabel(r.toString()));
+                    count++;
+                }
+                SpringUtils.makeCompactGrid(viewResults, count, 1, 0, 0, 0, 0);
+                viewResults.revalidate();
+                viewResults.repaint();
+            } else {
+                viewResults.removeAll();
+                viewResults.add(new JLabel("No results"));
+                viewResults.revalidate();
             }
-            SpringUtils.makeCompactGrid(viewResults, count, 1, 0, 0, 0, 0);
-            viewResults.revalidate();
-            viewResults.repaint();
-        } else {
-            viewResults.removeAll();
-            viewResults.add(new JLabel("No results"));
-            viewResults.revalidate();
+        } catch (Exception x) {
+            x.printStackTrace();
         }
         viewResults.getParent().revalidate();
         viewResults.getParent().repaint();

@@ -19,7 +19,6 @@ import com.jivesoftware.os.jive.utils.http.client.rest.RequestHelper;
 import com.jivesoftware.os.kensaku.service.plugins.KensakuIndex;
 import com.jivesoftware.os.kensaku.shared.KensakuDocument;
 import com.jivesoftware.os.kensaku.shared.KensakuQuery;
-import com.jivesoftware.os.kensaku.shared.KensakuResult;
 import com.jivesoftware.os.kensaku.shared.KensakuResults;
 import java.util.ArrayList;
 import java.util.Arrays;

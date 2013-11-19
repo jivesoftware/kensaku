@@ -2,8 +2,6 @@ package com.jivesoftware.os.kensaku.service.poc;
 
 import com.jivesoftware.os.kensaku.service.plugins.KensakuDocumentBuilder;
 import com.jivesoftware.os.kensaku.shared.KensakuDocument;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import org.apache.lucene.document.Document;
@@ -23,10 +21,9 @@ public class POCAllFieldsDocumentBuilder implements KensakuDocumentBuilder<Docum
         for (Map.Entry<String, List<String>> field : kensakuDocument.fields.entrySet()) {
             String fieldString = field.getValue().get(0);
             TextField textField = new TextField(field.getKey(),
-                    fieldString, Field.Store.YES);
+                fieldString, Field.Store.YES);
             doc.add(textField);
         }
         return doc;
     }
-
 }

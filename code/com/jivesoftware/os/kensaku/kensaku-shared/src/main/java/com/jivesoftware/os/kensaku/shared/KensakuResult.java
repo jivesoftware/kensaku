@@ -6,18 +6,15 @@ import java.util.Map;
 
 public class KensakuResult {
 
-    public final float score;
-    public final Map<String, String> fields;
+    public final Map<String, byte[]> payloads;
 
     @JsonCreator
-    public KensakuResult(@JsonProperty("score") float score,
-            @JsonProperty("fields") Map<String, String> fields) {
-        this.score = score;
-        this.fields = fields;
+    public KensakuResult(@JsonProperty("payloads") Map<String, byte[]> payloads) {
+        this.payloads = payloads;
     }
 
     @Override
     public String toString() {
-        return "KensakuResult{" + "score=" + score + ", fields=" + fields + '}';
+        return "KensakuResult{ payloads=" + payloads + '}';
     }
 }

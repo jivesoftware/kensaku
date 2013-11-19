@@ -1,7 +1,11 @@
 package com.jivesoftware.os.kensaku.service.poc;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jivesoftware.os.kensaku.service.plugins.KensakuQueryBuilder;
 import com.jivesoftware.os.kensaku.shared.KensakuQuery;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -15,13 +19,18 @@ import org.apache.lucene.util.Version;
 
 public class POCAllFieldsBooleanQueryBuilder implements KensakuQueryBuilder<Query> {
 
+    private static final ObjectMapper mapper = new ObjectMapper();
     private final StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_45);
 
     @Override
     public Query buildQuery(KensakuQuery kensakuQuery) throws Exception {
         BooleanQuery booleanQuery = new BooleanQuery();
 
-        for (Entry<String, String> field : kensakuQuery.fields.entrySet()) {
+        Map<String, String> fields = mapper.readValue(kensakuQuery.query,
+            new TypeReference<HashMap<String, String>>() {
+        });
+
+        for (Entry<String, String> field : fields.entrySet()) {
             TokenStream tokenStream = analyzer.tokenStream(field.getKey(), field.getValue());
             CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
 
@@ -34,5 +43,4 @@ public class POCAllFieldsBooleanQueryBuilder implements KensakuQueryBuilder<Quer
         }
         return booleanQuery;
     }
-
 }

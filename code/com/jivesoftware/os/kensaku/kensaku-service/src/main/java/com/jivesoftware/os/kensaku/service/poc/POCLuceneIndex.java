@@ -32,7 +32,6 @@ import org.apache.lucene.util.Version;
 public class POCLuceneIndex implements KensakuIndex<Term> {
 
     private static final MetricLogger LOG = MetricLoggerFactory.getLogger();
-
     private final IndexWriter _indexWriter;
     private final TrackingIndexWriter _trackingIndexWriter;
     private final ReferenceManager<IndexSearcher> _indexSearcherReferenceManager;
@@ -41,17 +40,16 @@ public class POCLuceneIndex implements KensakuIndex<Term> {
     private final KensakuDocumentBuilder<Document> kensakuDocumentBuilder;
     private final KensakuQueryBuilder<Query> kensakuQueryBuilder;
     private final KensakuResultBuilderProvider kensakuResultBuilderProvider;
-
     private long _reopenToken;      // index update/delete methods returned token
 
     public POCLuceneIndex(final Directory luceneDirectory,
-            final Analyzer analyzer,
-            KensakuDocIdBuilder<Term> kensakuDocIdBuilder,
-            KensakuDocumentBuilder<Document> kensakuDocumentBuilder,
-            KensakuQueryBuilder<Query> kensakuQueryBuilder,
-            KensakuResultBuilderProvider kensakuResultBuilderProvider) {
+        final Analyzer analyzer,
+        KensakuDocIdBuilder<Term> kensakuDocIdBuilder,
+        KensakuDocumentBuilder<Document> kensakuDocumentBuilder,
+        KensakuQueryBuilder<Query> kensakuQueryBuilder,
+        KensakuResultBuilderProvider kensakuResultBuilderProvider) {
 
-        LOG.info("Opening index for "+luceneDirectory);
+        LOG.info("Opening index for " + luceneDirectory);
 
         try {
             this.kensakuDocIdBuilder = kensakuDocIdBuilder;
@@ -61,8 +59,8 @@ public class POCLuceneIndex implements KensakuIndex<Term> {
 
             // [1]: Create the indexWriter
             _indexWriter = new IndexWriter(luceneDirectory,
-                    new IndexWriterConfig(Version.LUCENE_45,
-                            analyzer));
+                new IndexWriterConfig(Version.LUCENE_45,
+                analyzer));
 
             // [2a]: Create the TrackingIndexWriter to track changes to the delegated previously created IndexWriter
             _trackingIndexWriter = new TrackingIndexWriter(_indexWriter);
@@ -70,8 +68,8 @@ public class POCLuceneIndex implements KensakuIndex<Term> {
             // [2b]: Create an IndexSearcher ReferenceManager to safelly share IndexSearcher instances across
             //       multiple threads
             _indexSearcherReferenceManager = new SearcherManager(_indexWriter,
-                    true,
-                    null);
+                true,
+                null);
 
             // [3]: Create the ControlledRealTimeReopenThread that reopens the index periodically having into
             //      account the changes made to the index and tracked by the TrackingIndexWriter instance
@@ -79,9 +77,9 @@ public class POCLuceneIndex implements KensakuIndex<Term> {
             //      and every 100 millis whenever is someone waiting (see search method)
             //      (see http://lucene.apache.org/core/4_3_0/core/org/apache/lucene/search/NRTManagerReopenThread.html)
             _indexSearcherReopenThread = new ControlledRealTimeReopenThread<>(_trackingIndexWriter,
-                    _indexSearcherReferenceManager,
-                    60.00, // when there is nobody waiting
-                    0.1);    // when there is someone waiting
+                _indexSearcherReferenceManager,
+                60.00, // when there is nobody waiting
+                0.1);    // when there is someone waiting
             _indexSearcherReopenThread.start(); // start the refresher thread
         } catch (IOException ioEx) {
             throw new IllegalStateException("Lucene index could not be created: " + ioEx.getMessage());
@@ -107,12 +105,12 @@ public class POCLuceneIndex implements KensakuIndex<Term> {
 
         } catch (IOException ioEx) {
             LOG.error("Error while closing lucene index: {}", ioEx.getMessage(),
-                    ioEx);
+                ioEx);
         }
     }
 
     @Override
-   synchronized public void index(KensakuDocument kensakuDocument) throws Exception {
+    synchronized public void index(KensakuDocument kensakuDocument) throws Exception {
         try {
             _reopenToken = _trackingIndexWriter.addDocument(kensakuDocumentBuilder.build(kensakuDocument));
             LOG.debug("document indexed in lucene");
@@ -135,7 +133,7 @@ public class POCLuceneIndex implements KensakuIndex<Term> {
             Term recordIdTerm = kensakuDocIdBuilder.build(kensakuDocument);
             Document doc = kensakuDocumentBuilder.build(kensakuDocument);
             _reopenToken = _trackingIndexWriter.updateDocument(recordIdTerm,
-                    doc);
+                doc);
             LOG.debug("{} document re-indexed in lucene", recordIdTerm.text());
         } catch (Exception ioEx) {
             LOG.error("Error in lucene re-indexing operation: {}", ioEx.getMessage(), ioEx);
@@ -162,14 +160,14 @@ public class POCLuceneIndex implements KensakuIndex<Term> {
             LOG.debug("{}={} term matching records un-indexed from lucene", idTerm.field(), idTerm.text());
         } catch (IOException ioEx) {
             LOG.error("Error in un-index lucene operation: {}", ioEx.getMessage(),
-                    ioEx);
+                ioEx);
             throw ioEx;
         } finally {
             try {
                 _indexWriter.commit();
             } catch (IOException ioEx) {
                 LOG.error("Error while commiting changes to Lucene index: {}", ioEx.getMessage(),
-                        ioEx);
+                    ioEx);
             }
         }
     }
@@ -184,13 +182,13 @@ public class POCLuceneIndex implements KensakuIndex<Term> {
             LOG.warn("lucene index truncated");
         } catch (IOException ioEx) {
             LOG.error("Error truncating lucene index: {}", ioEx.getMessage(),
-                    ioEx);
+                ioEx);
         } finally {
             try {
                 _indexWriter.commit();
             } catch (IOException ioEx) {
                 LOG.error("Error truncating lucene index: {}", ioEx.getMessage(),
-                        ioEx);
+                    ioEx);
             }
         }
     }
@@ -243,28 +241,28 @@ public class POCLuceneIndex implements KensakuIndex<Term> {
 
                 // Exec the search (if the sort criteria is null, they're not used)
                 TopDocs scoredDocs = theSort != null ? searcher.search(query,
-                        theNumberOfResults,
-                        theSort)
-                        : searcher.search(query,
-                                theNumberOfResults);
+                    theNumberOfResults,
+                    theSort)
+                    : searcher.search(query,
+                    theNumberOfResults);
                 LOG.info("query {} {} executed against lucene index: returned {} total items, {} in this page", query.toString(),
-                        (theSort != null ? theSort.toString() : ""),
-                        scoredDocs != null ? scoredDocs.totalHits : 0,
-                        scoredDocs != null ? scoredDocs.scoreDocs.length : 0);
+                    (theSort != null ? theSort.toString() : ""),
+                    scoredDocs != null ? scoredDocs.totalHits : 0,
+                    scoredDocs != null ? scoredDocs.scoreDocs.length : 0);
 
                 outDocs = kensakuResulterizer.create(searcher,
-                        scoredDocs,
-                        firstResultOffest,
-                        numberOfResults);
+                    scoredDocs,
+                    firstResultOffest,
+                    numberOfResults);
             } finally {
                 _indexSearcherReferenceManager.release(searcher);
             }
         } catch (IOException ioEx) {
             LOG.error("Error freeing the searcher {}", ioEx.getMessage(),
-                    ioEx);
+                ioEx);
         } catch (InterruptedException intEx) {
             LOG.error("The index writer periodically re-open thread has stopped", intEx.getMessage(),
-                    intEx);
+                intEx);
         }
         return outDocs;
     }
