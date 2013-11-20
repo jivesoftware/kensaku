@@ -29,7 +29,6 @@ import com.jivesoftware.os.amza.shared.TableStorage;
 import com.jivesoftware.os.amza.shared.TableStorageProvider;
 import com.jivesoftware.os.amza.storage.FileBackedTableStorage;
 import com.jivesoftware.os.amza.storage.RowTableFile;
-import com.jivesoftware.os.amza.storage.binary.BinaryRowChunkMarshaller;
 import com.jivesoftware.os.amza.storage.binary.BinaryRowMarshaller;
 import com.jivesoftware.os.amza.storage.binary.BinaryRowReader;
 import com.jivesoftware.os.amza.storage.binary.BinaryRowWriter;
