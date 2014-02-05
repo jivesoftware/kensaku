@@ -16,6 +16,7 @@
 package com.jivesoftware.os.kensaku.service.poc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jivesoftware.os.kensaku.service.plugins.KensakuResultBuilder;
 import com.jivesoftware.os.kensaku.shared.KensakuResult;
 import com.jivesoftware.os.kensaku.shared.KensakuResults;
 import java.io.IOException;
@@ -28,7 +29,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TopDocs;
 
-public class POCResultBuilder {
+public class POCResultBuilder implements KensakuResultBuilder<IndexSearcher, TopDocs> {
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private final Collection<String> fetchFields;
@@ -37,10 +38,10 @@ public class POCResultBuilder {
         this.fetchFields = fetchFields;
     }
 
+    @Override
     public KensakuResults create(IndexSearcher searcher, TopDocs hits, int firstResultOffest, int numberOfResults) {
         List<KensakuResult> results = new ArrayList<>();
         for (int i = 0; i < hits.scoreDocs.length && i < numberOfResults; i++) {
-
 
             try {
                 Map<String, String> fields = new HashMap<>();
@@ -52,7 +53,6 @@ public class POCResultBuilder {
                 Map<String, byte[]> payloads = new HashMap<>();
                 payloads.put("score", mapper.writeValueAsBytes(hits.scoreDocs[i].score));
                 payloads.put("fields", mapper.writeValueAsBytes(fields));
-
 
                 results.add(new KensakuResult(payloads));
             } catch (IOException x) {

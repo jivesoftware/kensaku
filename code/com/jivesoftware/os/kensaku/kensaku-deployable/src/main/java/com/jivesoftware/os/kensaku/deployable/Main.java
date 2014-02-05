@@ -90,7 +90,7 @@ public class Main {
                 BinaryRowReader reader = new BinaryRowReader(filer);
                 BinaryRowWriter writer = new BinaryRowWriter(filer);
                 //BinaryRowChunkMarshaller rowMarshaller = new BinaryRowChunkMarshaller(directory, tableName);
-                BinaryRowMarshaller rowMarshaller = new BinaryRowMarshaller(tableName);
+                BinaryRowMarshaller<K,V> rowMarshaller = new BinaryRowMarshaller<>(tableName);
                 RowTableFile<K, V, byte[]> rowTableFile = new RowTableFile<>(orderIdProvider, rowMarshaller, reader, writer);
 
 
@@ -102,7 +102,7 @@ public class Main {
                  RowMarshaller<K, V, String> rowMarshaller = new StringRowValueChunkMarshaller(directory, mapper, tableName);
                  RowTableFile<K, V, String> rowTableFile = new RowTableFile<>(orderIdProvider, rowMarshaller, reader, writer);
                  */
-                return new FileBackedTableStorage(rowTableFile);
+                return new FileBackedTableStorage<>(rowTableFile);
             }
         };
 

@@ -13,17 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.jivesoftware.os.kensaku.service.poc;
+package com.jivesoftware.os.kensaku.service.plugins;
 
-import com.jivesoftware.os.kensaku.service.plugins.KensakuResultBuilder;
-import com.jivesoftware.os.kensaku.service.plugins.KensakuResultBuilderProvider;
-import com.jivesoftware.os.kensaku.shared.KensakuQuery;
-import java.util.Arrays;
+import com.jivesoftware.os.kensaku.shared.KensakuResults;
 
-public class POCResultBuilderProvider implements KensakuResultBuilderProvider {
+public interface KensakuResultBuilder<I, T> {
 
-    @Override
-    public KensakuResultBuilder create(KensakuQuery kensakuQuery) throws Exception {
-        return new POCResultBuilder(Arrays.asList("docId", "body"));
-    }
+    KensakuResults create(I searcher, T scoredDocs, int firstResultOffest, int numberOfResults);
+
 }

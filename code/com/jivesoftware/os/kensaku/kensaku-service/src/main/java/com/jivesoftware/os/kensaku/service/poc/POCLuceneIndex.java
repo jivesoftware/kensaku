@@ -21,6 +21,7 @@ import com.jivesoftware.os.kensaku.service.plugins.KensakuDocIdBuilder;
 import com.jivesoftware.os.kensaku.service.plugins.KensakuDocumentBuilder;
 import com.jivesoftware.os.kensaku.service.plugins.KensakuIndex;
 import com.jivesoftware.os.kensaku.service.plugins.KensakuQueryBuilder;
+import com.jivesoftware.os.kensaku.service.plugins.KensakuResultBuilder;
 import com.jivesoftware.os.kensaku.service.plugins.KensakuResultBuilderProvider;
 import com.jivesoftware.os.kensaku.shared.KensakuDocument;
 import com.jivesoftware.os.kensaku.shared.KensakuQuery;
@@ -239,7 +240,7 @@ public class POCLuceneIndex implements KensakuIndex<Term> {
         Set<SortField> sortFields = null;
         final int firstResultOffest = kensakuQuery.firstResult;
         final int numberOfResults = kensakuQuery.numberOfResults;
-        POCResultBuilder kensakuResulterizer = kensakuResultBuilderProvider.create(kensakuQuery);
+        KensakuResultBuilder kensakuResulterizer = kensakuResultBuilderProvider.create(kensakuQuery);
 
         KensakuResults outDocs = null;
         try {
