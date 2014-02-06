@@ -24,6 +24,7 @@ import com.jivesoftware.os.amza.service.AmzaServiceInitializer.AmzaServiceConfig
 import com.jivesoftware.os.amza.service.discovery.AmzaDiscovery;
 import com.jivesoftware.os.amza.shared.AmzaInstance;
 import com.jivesoftware.os.amza.shared.RingHost;
+import com.jivesoftware.os.amza.shared.TableIndex;
 import com.jivesoftware.os.amza.shared.TableName;
 import com.jivesoftware.os.amza.shared.TableStorage;
 import com.jivesoftware.os.amza.shared.TableStorageProvider;
@@ -33,6 +34,8 @@ import com.jivesoftware.os.amza.storage.binary.BinaryRowMarshaller;
 import com.jivesoftware.os.amza.storage.binary.BinaryRowReader;
 import com.jivesoftware.os.amza.storage.binary.BinaryRowWriter;
 import com.jivesoftware.os.amza.storage.chunks.Filer;
+import com.jivesoftware.os.amza.storage.index.MapDBTableIndex;
+import com.jivesoftware.os.amza.storage.index.TableIndexProvider;
 import com.jivesoftware.os.amza.transport.http.replication.HttpChangeSetSender;
 import com.jivesoftware.os.amza.transport.http.replication.HttpChangeSetTaker;
 import com.jivesoftware.os.amza.transport.http.replication.endpoints.AmzaReplicationRestEndpoints;
@@ -91,7 +94,14 @@ public class Main {
                 BinaryRowWriter writer = new BinaryRowWriter(filer);
                 //BinaryRowChunkMarshaller rowMarshaller = new BinaryRowChunkMarshaller(directory, tableName);
                 BinaryRowMarshaller<K,V> rowMarshaller = new BinaryRowMarshaller<>(tableName);
-                RowTableFile<K, V, byte[]> rowTableFile = new RowTableFile<>(orderIdProvider, rowMarshaller, reader, writer);
+                TableIndexProvider<K,V> tableIndexProvider = new TableIndexProvider<K, V>() {
+
+                    @Override
+                    public TableIndex<K, V> create(String tableIndexName) {
+                        return new MapDBTableIndex<>(tableIndexName);
+                    }
+                };
+                RowTableFile<K, V, byte[]> rowTableFile = new RowTableFile<>(orderIdProvider, rowMarshaller, reader, writer, tableIndexProvider);
 
 
                 /*
